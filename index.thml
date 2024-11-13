@@ -1,0 +1,171 @@
+<!DOCTYPE html><html><head><base href="." target="_blank"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.gift-box {
+    width: 100%;
+    min-height: 300px;
+    border: 3px dashed #c3cfe2;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.gift-box.dragover {
+    background: #f0f4f8;
+    border-color: #7986cb;
+}
+
+.gift-box img {
+    max-width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+}
+
+.upload-text {
+    color: #666;
+    text-align: center;
+}
+
+.upload-btn {
+    background: #7986cb;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.upload-btn:hover {
+    background: #5c6bc0;
+    transform: translateY(-2px);
+}
+
+#fileInput {
+    display: none;
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #333; margin-bottom: 20px;">Braguinha</h1>
+        <div class="gift-box" id="dropZone">
+    <video autoplay="" loop="" muted="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-set-of-plateaus-seen-from-the-heights-in-a-sunset-26070-large.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+        <input type="file" id="fileInput" accept="video/mp4">
+    </div>
+
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+// Previne o comportamento padrão de drag and drop
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+    document.body.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults (e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+// Adiciona visual feedback quando arrastar arquivo
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight(e) {
+    dropZone.classList.remove('dragover');
+}
+
+// Manipula o arquivo quando for solto na área
+dropZone.addEventListener('drop', handleDrop, false);
+fileInput.addEventListener('change', handleFileSelect, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFiles(files);
+}
+
+function handleFileSelect(e) {
+    const files = e.target.files;
+    handleFiles(files);
+}
+
+function handleFiles(files) {
+    if (files[0]) {
+        if (files[0].type === 'video/mp4') {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                clearDropZone();
+                const video = document.createElement('video');
+                video.src = e.target.result;
+                video.controls = true;
+                video.loop = true;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.style.position = 'absolute';
+                video.style.top = '0';
+                video.style.left = '0';
+                dropZone.appendChild(video);
+                video.play();
+            }
+            reader.readAsDataURL(files[0]);
+        } else {
+            alert('Por favor, selecione apenas arquivos MP4!');
+        }
+    }
+}
+
+function clearDropZone() {
+    while (dropZone.firstChild) {
+        dropZone.removeChild(dropZone.firstChild);
+    }
+}
+</script>
+</body></html>
